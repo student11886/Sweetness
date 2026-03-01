@@ -26,14 +26,19 @@ function saveData() {
 }
 
 function addProduct() {
-    const name = document.getElementById("name").value;
-    const price = parseFloat(document.getElementById("price").value);
-    const quantity = parseInt(document.getElementById("quantity").value);
-    const composition = document.getElementById("composition").value;
+    const nameInput = document.getElementById("name");
+    const priceInput = document.getElementById("price");
+    const quantityInput = document.getElementById("quantity");
+    const compositionInput = document.getElementById("composition");
     const photoInput = document.getElementById("photo");
 
-    if (!name || !price || !quantity) {
-        alert("Заполните обязательные поля!");
+    const name = nameInput.value.trim();
+    const price = parseFloat(priceInput.value);
+    const quantity = parseInt(quantityInput.value);
+    const composition = compositionInput.value.trim();
+
+    if (!name || isNaN(price) || isNaN(quantity)) {
+        alert("Заполните обязательные поля корректно!");
         return;
     }
 
@@ -46,19 +51,29 @@ function addProduct() {
         photo: ""
     };
 
+    function clearFields() {
+        nameInput.value = "";
+        priceInput.value = "";
+        quantityInput.value = "";
+        compositionInput.value = "";
+        photoInput.value = ""; // очищаем файл
+    }
+
     if (photoInput.files[0]) {
         const reader = new FileReader();
-        reader.onload = function() {
+        reader.onload = function () {
             product.photo = reader.result;
             products.push(product);
             saveData();
             renderProducts();
+            clearFields(); // очищаем после добавления
         };
         reader.readAsDataURL(photoInput.files[0]);
     } else {
         products.push(product);
         saveData();
         renderProducts();
+        clearFields(); // очищаем после добавления
     }
 }
 

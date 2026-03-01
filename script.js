@@ -32,24 +32,33 @@ function addProduct() {
     const composition = document.getElementById("composition").value;
     const photoInput = document.getElementById("photo");
 
-    const reader = new FileReader();
-    reader.onload = function() {
-        const product = {
-            id: Date.now(),
-            name,
-            price,
-            quantity,
-            composition,
-            photo: reader.result
-        };
+    if (!name || !price || !quantity) {
+        alert("Заполните обязательные поля!");
+        return;
+    }
 
-        products.push(product);
-        saveData();
-        renderProducts();
+    const product = {
+        id: Date.now(),
+        name,
+        price,
+        quantity,
+        composition,
+        photo: ""
     };
 
     if (photoInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            product.photo = reader.result;
+            products.push(product);
+            saveData();
+            renderProducts();
+        };
         reader.readAsDataURL(photoInput.files[0]);
+    } else {
+        products.push(product);
+        saveData();
+        renderProducts();
     }
 }
 

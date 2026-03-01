@@ -24,6 +24,21 @@
         <button onclick="addProduct()">Добавить</button>
     </div>
 
+    <div class="sort-panel">
+        <label>Сортировать по:</label>
+
+        <select id="sortField">
+            <option value="name">Название</option>
+            <option value="price">Цена</option>
+            <option value="quantity">Количество</option>
+        </select>
+
+        <select id="sortDirection">
+            <option value="asc">По возрастанию</option>
+            <option value="desc">По убыванию</option>
+        </select>
+    </div>
+
     <table>
         <thead>
             <tr>

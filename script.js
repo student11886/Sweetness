@@ -53,11 +53,33 @@ function addProduct() {
     }
 }
 
-function renderProducts() {
+function renderProducts(filter = "") {
     const table = document.getElementById("productTable");
     table.innerHTML = "";
 
-    products.forEach(product => {
+    const sortField = document.getElementById("sortField")?.value || "name";
+    const sortDirection = document.getElementById("sortDirection")?.value || "asc";
+
+    let filteredProducts = products.filter(p =>
+        p.name.toLowerCase().includes(filter.toLowerCase())
+    );
+
+    // 🔽 СОРТИРОВКА
+    filteredProducts.sort((a, b) => {
+        let valueA = a[sortField];
+        let valueB = b[sortField];
+
+        if (sortField === "name") {
+            valueA = valueA.toLowerCase();
+            valueB = valueB.toLowerCase();
+        }
+
+        if (valueA < valueB) return sortDirection === "asc" ? -1 : 1;
+        if (valueA > valueB) return sortDirection === "asc" ? 1 : -1;
+        return 0;
+    });
+
+    filteredProducts.forEach(product => {
         table.innerHTML += `
             <tr>
                 <td><img src="${product.photo}" class="product-img"></td>
@@ -124,5 +146,14 @@ function renderReport() {
     }
 }
 
+document.getElementById("sortField").addEventListener("change", () => {
+    renderProducts(document.getElementById("search").value);
+});
+
+document.getElementById("sortDirection").addEventListener("change", () => {
+    renderProducts(document.getElementById("search").value);
+});
+
 renderProducts();
 renderReport();
+

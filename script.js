@@ -2,8 +2,7 @@ let products = JSON.parse(localStorage.getItem("products")) || [];
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
 
 document.getElementById("search").addEventListener("input", function() {
-    const searchText = this.value.toLowerCase();
-    filterProducts(searchText);
+    renderProducts(this.value);
 });
 
 function filterProducts(searchText) {
@@ -56,7 +55,7 @@ function addProduct() {
         priceInput.value = "";
         quantityInput.value = "";
         compositionInput.value = "";
-        photoInput.value = ""; // очищаем файл
+        photoInput.value = "";
     }
 
     if (photoInput.files[0]) {
@@ -66,14 +65,14 @@ function addProduct() {
             products.push(product);
             saveData();
             renderProducts();
-            clearFields(); // очищаем после добавления
+            clearFields();
         };
         reader.readAsDataURL(photoInput.files[0]);
     } else {
         products.push(product);
         saveData();
         renderProducts();
-        clearFields(); // очищаем после добавления
+        clearFields();
     }
 }
 
@@ -81,25 +80,26 @@ function renderProducts(filter = "") {
     const table = document.getElementById("productTable");
     table.innerHTML = "";
 
-    const sortField = document.getElementById("sortField")?.value || "name";
-    const sortDirection = document.getElementById("sortDirection")?.value || "asc";
+    const sortField = document.getElementById("sortField").value;
 
     let filteredProducts = products.filter(p =>
         p.name.toLowerCase().includes(filter.toLowerCase())
     );
 
-    // 🔽 СОРТИРОВКА
     filteredProducts.sort((a, b) => {
-        let valueA = a[sortField];
-        let valueB = b[sortField];
 
         if (sortField === "name") {
-            valueA = valueA.toLowerCase();
-            valueB = valueB.toLowerCase();
+            return a.name.localeCompare(b.name);
         }
 
-        if (valueA < valueB) return sortDirection === "asc" ? -1 : 1;
-        if (valueA > valueB) return sortDirection === "asc" ? 1 : -1;
+        if (sortField === "price") {
+            return Number(a.price) - Number(b.price);
+        }
+
+        if (sortField === "quantity") {
+            return Number(a.quantity) - Number(b.quantity);
+        }
+
         return 0;
     });
 
@@ -138,24 +138,60 @@ function sellProduct(id) {
 }
 
 function deleteProduct(id) {
+    const product = products.find(p => p.id === id);
+
     products = products.filter(p => p.id !== id);
+
+    sales = sales.filter(s => s.name !== product.name);
+
     saveData();
     renderProducts();
+    renderReport();
 }
 
 function renderReport() {
     const table = document.getElementById("reportTable");
     table.innerHTML = "";
 
+    const period = document.getElementById("period").value;
+    const now = new Date();
+
+    let filteredSales = sales.filter(s => {
+        const saleDate = new Date(s.date);
+
+        if (period === "day") {
+            return saleDate.toDateString() === now.toDateString();
+        }
+
+        if (period === "week") {
+            const weekAgo = new Date();
+            weekAgo.setDate(now.getDate() - 7);
+            return saleDate >= weekAgo;
+        }
+
+        if (period === "month") {
+            return (
+                saleDate.getMonth() === now.getMonth() &&
+                saleDate.getFullYear() === now.getFullYear()
+            );
+        }
+
+        return true;
+    });
+
     const grouped = {};
 
-    sales.forEach(s => {
+    filteredSales.forEach(s => {
         if (!grouped[s.name]) {
             grouped[s.name] = { sold: 0, revenue: 0, lastDate: s.date };
         }
+
         grouped[s.name].sold++;
         grouped[s.name].revenue += s.price;
-        grouped[s.name].lastDate = s.date;
+
+        if (new Date(s.date) > new Date(grouped[s.name].lastDate)) {
+            grouped[s.name].lastDate = s.date;
+        }
     });
 
     for (let name in grouped) {
@@ -170,13 +206,20 @@ function renderReport() {
     }
 }
 
+function clearReport() {
+    if (confirm("Вы действительно хотите полностью очистить отчёт о продажах?")) {
+        sales = [];
+        saveData();
+        renderReport();
+        alert("Отчёт очищен!");
+    }
+}
+
 document.getElementById("sortField").addEventListener("change", () => {
     renderProducts(document.getElementById("search").value);
 });
 
-document.getElementById("sortDirection").addEventListener("change", () => {
-    renderProducts(document.getElementById("search").value);
-});
+document.getElementById("period").addEventListener("change", renderReport);
 
 renderProducts();
 renderReport();

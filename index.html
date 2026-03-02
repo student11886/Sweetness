@@ -32,11 +32,6 @@
             <option value="price">Цена</option>
             <option value="quantity">Количество</option>
         </select>
-
-        <select id="sortDirection">
-            <option value="asc">По возрастанию</option>
-            <option value="desc">По убыванию</option>
-        </select>
     </div>
 
     <table>
@@ -54,6 +49,10 @@
     </table>
 
     <h2>Отчёт о продажах</h2>
+
+    <button onclick="clearReport()" style="background-color:#d9534f;">
+        Очистить отчёт полностью
+    </button>
 
     <select id="period">
         <option value="all">Все</option>

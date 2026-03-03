@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: url('https://images.unsplash.com/photo-1499636136210-6f4ee915583e') no-repeat center center fixed;
+    background: url('./images/background.jpg') no-repeat center center fixed;
     background-size: cover;
 }
 
